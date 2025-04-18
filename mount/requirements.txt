@@ -2,6 +2,7 @@ alembic==1.15.2
 annotated-types==0.7.0
 anyio==4.9.0
 asyncpg==0.30.0
+bcrypt==4.3.0
 click==8.1.8
 fastapi==0.115.12
 fastapi-cli==0.0.7
@@ -18,6 +19,7 @@ pydantic-settings==2.9.0
 pydantic_core==2.33.1
 Pygments==2.19.1
 python-dotenv==1.1.0
+python-multipart==0.0.20
 PyYAML==6.0.2
 rich==14.0.0
 rich-toolkit==0.14.1
@@ -32,5 +34,3 @@ uvicorn==0.34.1
 uvloop==0.21.0
 watchfiles==1.0.5
 websockets==15.0.1
-bcrypt
-python-multipart
