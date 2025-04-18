@@ -1,0 +1,34 @@
+
+name: school-management
+
+services:
+  school-backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SCHOOL_ENVIRONMENT=dev
+      - DB_URL=postgresql+asyncpg://postgres:example@school-db:5432/school
+    depends_on:
+      - school-db
+    pull_policy: never
+    volumes:
+      - ./mount:/mount
+
+  school-db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: school
+    ports:
+      - "5432:5432"
+
+  school-pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@xyz.com
+      - PGADMIN_DEFAULT_PASSWORD=example
+    ports:
+      - "8888:80"
