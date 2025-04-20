@@ -1,8 +1,7 @@
 from typing import Annotated
 
-from fastapi import Depends, Query
+from fastapi import Depends, Query, Request
 from pydantic import BaseModel, Field
-from app.database.core import AsyncSessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -11,8 +10,8 @@ class PaginationParams(BaseModel):
     per_page: int = Field(10, description="Number of itmes to show per page")
 
 
-async def async_get_db():
-    async with AsyncSessionLocal() as db:
+async def async_get_db(request: Request):
+    async with AsyncSession(request.app.state.db_pool) as db:
         yield db
 
 

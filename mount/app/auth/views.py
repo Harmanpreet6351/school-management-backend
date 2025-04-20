@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from app.auth.models import TokenResponse, UserCreateRequest, UserRead
 import app.auth.services as auth_service
-from app.dependencies import AsyncSessionDep
+from app.database.dependencies import AsyncSessionDep
 from app.exceptions import HTTPExceptionResponseModel
 
 
