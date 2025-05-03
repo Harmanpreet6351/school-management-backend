@@ -3,6 +3,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
 
+from app.auth.exceptions import InvalidUsernamePasswordException, UserAlreadyExistsException
 from app.auth.models import User, UserCreateRequest
 
 
@@ -26,9 +27,7 @@ async def create_user(db: AsyncSession, *, data: UserCreateRequest) -> User:
     existing_user_obj = result.scalar_one_or_none()
 
     if existing_user_obj is not None:
-        raise HTTPException(
-            status_code=500, detail=f"User with email={data.email} already exists"
-        )
+        raise UserAlreadyExistsException(data.email)
 
     user_obj = User()
     user_obj.full_name = data.full_name
@@ -63,15 +62,9 @@ async def authenticate_user(db: AsyncSession, *, email: str, password: str) -> U
     user_obj = result.scalars().one_or_none()
 
     if user_obj is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with email={email} not found",
-        )
+        raise InvalidUsernamePasswordException()
 
     if not user_obj.verify_password(password):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid username or password",
-        )
+        raise InvalidUsernamePasswordException()
 
     return user_obj

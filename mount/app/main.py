@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.database.core import get_db_engine
-from app.exceptions import ExceptionHandlerMiddleware
+from app.exceptions import init_exception_middlewares
 from .router import api_router_v1
 
 app_description = """
@@ -19,11 +19,9 @@ app = FastAPI(
     title="School Management System API 🎟️", description=app_description, lifespan=lifespan
 )
 
+init_exception_middlewares(app)
 
 app.include_router(api_router_v1)
-
-
-app.add_middleware(ExceptionHandlerMiddleware)
 
 
 @app.get("/", tags=["Health"])
