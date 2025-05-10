@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from app.database.core import get_db_engine
 from app.exceptions import init_exception_middlewares
+from app.middlewares import init_middlewares
 from .router import api_router_v1
 
 app_description = """
@@ -20,6 +21,8 @@ app = FastAPI(
 )
 
 init_exception_middlewares(app)
+
+init_middlewares(app)
 
 app.include_router(api_router_v1)
 
