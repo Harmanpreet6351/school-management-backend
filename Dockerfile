@@ -6,11 +6,13 @@ ENV SCRIPTS_PATH=/scripts
 WORKDIR /mount
 
 RUN apt update -y && \
-    apt -y install bash gcc
+    apt -y install bash gcc dos2unix
 
 COPY mount/ .
 
 COPY scripts/ /scripts/
+
+RUN dos2unix /scripts/*
 
 ENV PYTHONUNBUFFERED=1
 
