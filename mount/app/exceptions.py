@@ -1,8 +1,9 @@
-from logging import FileHandler
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+
+from app import logger
 
 class AppBaseException(Exception):
     def __init__(self, status_code: int, error_code: str, detail: str):
@@ -17,6 +18,13 @@ class HTTPExceptionResponseModel(BaseModel):
 
 
 def init_exception_middlewares(app: FastAPI):
+    """
+    Initialize all exceptions handler
+    NOTE: All handlers will run in order from top to bottom
+
+    Args:
+        app (FastAPI): FastAPI app instance
+    """
 
     @app.exception_handler(RequestValidationError)
     async def handle_request_validation_error(request: Request, exc: RequestValidationError):
@@ -30,6 +38,7 @@ def init_exception_middlewares(app: FastAPI):
         Returns:
             JSONResponse: Response with error data
         """
+        logger.exception("Invalid Request Body", exc)
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
@@ -50,7 +59,7 @@ def init_exception_middlewares(app: FastAPI):
         Returns:
             JSONResponse: Response with error data
         """
-
+        logger.exception("Custom Exceptions", exc)
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -71,6 +80,7 @@ def init_exception_middlewares(app: FastAPI):
         Returns:
             JSONResponse: Response with error data
         """
+        logger.exception("App Exception", exc)
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -91,6 +101,7 @@ def init_exception_middlewares(app: FastAPI):
         Returns:
             JSONResponse: Response with error data
         """
+        logger.exception("Unhandled exception", exc)
         return JSONResponse(
             status_code=500,
             content={
