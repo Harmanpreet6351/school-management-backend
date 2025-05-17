@@ -42,8 +42,10 @@ def init_exception_middlewares(app: FastAPI):
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
-                "code": "VALIDATION_ERROR",
-                "detail": exc.args
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "detail": exc.args
+                }
             }
         )
 
@@ -63,8 +65,10 @@ def init_exception_middlewares(app: FastAPI):
         return JSONResponse(
             status_code=exc.status_code,
             content={
-                "code": "HTTP_EXCEPTION",
-                "detail": exc.detail
+                "error": {
+                    "code": "HTTP_EXCEPTION",
+                    "detail": exc.detail
+                }
             }
         )
 
@@ -84,8 +88,10 @@ def init_exception_middlewares(app: FastAPI):
         return JSONResponse(
             status_code=exc.status_code,
             content={
-                "code": exc.error_code,
-                "detail": exc.detail
+                "error": {
+                    "code": exc.error_code,
+                    "detail": exc.detail
+                }
             }
         )
     
@@ -105,7 +111,9 @@ def init_exception_middlewares(app: FastAPI):
         return JSONResponse(
             status_code=500,
             content={
-                "code": "UNHANDLED_EXCEPTION",
-                "detail": str(exc)
+                "error": {
+                    "code": "UNHANDLED_EXCEPTION",
+                    "detail": str(exc)
+                }
             }
         )

@@ -21,9 +21,8 @@ class User(Base):
     def token(self):
         expire = datetime.now(timezone.utc) + timedelta(minutes=get_settings().jwt_expiration_minutes)
         to_encode = {
-            "sub": self.email,
-            "exp": expire,
-            "name": self.full_name,
+            "sub": str(self.id),
+            "exp": expire
         }
         encoded_jwt = jwt.encode(to_encode, get_settings().jwt_secret_key)
         return encoded_jwt
@@ -68,7 +67,7 @@ class UserCreateRequest(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    token: str
+    access_token: str
     user: UserRead
 
     model_config = ConfigDict(from_attributes=True)

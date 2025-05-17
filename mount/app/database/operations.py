@@ -28,7 +28,6 @@ class QueryExecutor(Generic[ModelType]):
         *,
         filter_spec: FilterSpecDef = [],
         order_spec: OrderSpecDef = [],
-        pagination_data: PaginationArgs | None = None,
         joined_loan_cols: list[InstrumentedAttribute] = [],
         raw_filters: list[ColumnElement] = [],
     ) -> None:
@@ -65,7 +64,7 @@ class QueryExecutor(Generic[ModelType]):
                 elif spec[1] == "desc":
                     self.stmt = self.stmt.order_by(desc(getattr(model, spec[0])))
 
-    async def paginate(self, db: AsyncSession, pagination_data: PaginationArgs) -> dict:
+    async def paginate(self, db: AsyncSession, pagination_data: PaginationArgs) -> tuple[dict, list[ModelType]]:
         return await paginate_query(
             db,
             self.stmt,

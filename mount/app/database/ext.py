@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def paginate(
     db: AsyncSession, stmt: Select, *, page: int = 1, per_page: int = 10
-) -> dict:
+) -> tuple[dict, list]:
     result = (
         await db.scalars(stmt.offset((page - 1) * per_page).limit(per_page))
     ).all()
@@ -17,9 +17,10 @@ async def paginate(
         raise HTTPException(
             status_code=500, detail="Error fetching count from database"
         )
-
-    return {
+    
+    page_data = {
         "page": page,
-        "total_pages": cast(int, total_pages),
-        "data": cast(list, result),
+        "total_pages": cast(int, total_pages)
     }
+
+    return page_data, cast(list, result)
