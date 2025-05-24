@@ -1,10 +1,9 @@
-from fastapi import HTTPException
-from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import status
 
-from app.auth.exceptions import InvalidUsernamePasswordException, UserAlreadyExistsException
-from app.auth.models import User, UserCreateRequest
+from app.database.models import User
+from app.exceptions.user_exception import InvalidUsernamePasswordException, UserAlreadyExistsException
+from app.schemas.user_schema import UserCreateRequest
+from app.repositories.user_repository import user_repo
 
 
 async def create_user(db: AsyncSession, *, data: UserCreateRequest) -> User:
@@ -20,27 +19,13 @@ async def create_user(db: AsyncSession, *, data: UserCreateRequest) -> User:
     Returns:
         User: returns newly created user
     """
-    result = await db.execute(
-        select(User).where(func.lower(User.email) == func.lower(data.email))
-    )
 
-    existing_user_obj = result.scalar_one_or_none()
+    existing_user_obj = await user_repo.get_by_attribute(db, attribute="email", value=data.email)
 
     if existing_user_obj is not None:
         raise UserAlreadyExistsException(data.email)
 
-    user_obj = User()
-    user_obj.full_name = data.full_name
-    user_obj.email = data.email
-
-    user_obj.set_password(data.password)
-
-    db.add(user_obj)
-
-    await db.commit()
-    await db.refresh(user_obj)
-
-    return user_obj
+    return await user_repo.create_with_hash(db, obj=data)
 
 
 async def authenticate_user(db: AsyncSession, *, email: str, password: str) -> User:
@@ -57,9 +42,8 @@ async def authenticate_user(db: AsyncSession, *, email: str, password: str) -> U
     Returns:
         User: Returns the user if authentic
     """
-    result = await db.execute(select(User).where(User.email == email))
 
-    user_obj = result.scalars().one_or_none()
+    user_obj = await user_repo.get_by_attribute(db, attribute="email", value=email)
 
     if user_obj is None:
         raise InvalidUsernamePasswordException()

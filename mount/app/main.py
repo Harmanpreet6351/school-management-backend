@@ -1,14 +1,11 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
-from fastapi import Depends, FastAPI, status
+from fastapi import FastAPI, status
 
-from app.auth.dependencies import get_current_user
-from app.auth.models import User
+from app.api.dependencies import CurrentUserDep
 from app.database.core import get_db_engine
-from app.exceptions import init_exception_middlewares
-from app.middlewares import init_middlewares
-from app.models import ErrorResponseModel
-from .router import api_router_v1
+from app.core.middlewares import init_middlewares, init_exception_middlewares
+from app.api import api_router
+from app.schemas.base_schema import ErrorResponseModel
 
 app_description = """
 A FastAPI-powered backend for managing school financial operations, including budgeting, fee collection, staff salaries, and expense tracking. This system supports secure user roles, detailed financial reporting, and real-time updates to ensure transparency and efficiency in school finance workflows.
@@ -39,13 +36,11 @@ init_exception_middlewares(app)
 
 init_middlewares(app)
 
-app.include_router(api_router_v1, responses=default_responses)
+app.include_router(api_router, responses=default_responses)
 
 
 @app.get("/", tags=["Health"])
-async def health_check(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
+async def health_check():
     """
     Checks System health
     """

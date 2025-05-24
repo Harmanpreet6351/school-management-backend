@@ -1,14 +1,11 @@
 import bcrypt
 
 from datetime import datetime, timedelta, timezone
-from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
-from jose import jwt, JWTError, ExpiredSignatureError
-
-from app.config import get_settings
-from app.models import DBBaseModel
+from app.core.config import get_settings
 from app.database.core import Base
+from sqlalchemy.orm import Mapped, mapped_column
+from jose import jwt, ExpiredSignatureError, JWTError
 
 class User(Base):
     __tablename__ = "users"
@@ -52,22 +49,3 @@ class User(Base):
         except JWTError:
             print("Invalid token.")
         return None
-
-
-class UserRead(DBBaseModel):
-    full_name: str
-    email: str
-    password_hash: str
-
-
-class UserCreateRequest(BaseModel):
-    full_name: str = Field(..., examples=["John Doe"])
-    email: str = Field(..., examples=['john@example.com'])
-    password: str = Field(..., examples=['topsecret'])
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    user: UserRead
-
-    model_config = ConfigDict(from_attributes=True)
