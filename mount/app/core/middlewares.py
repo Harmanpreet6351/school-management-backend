@@ -1,21 +1,24 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from app.core import logger
+from app.exceptions.base_exception import AppBaseException
 
-from app import logger
+def init_middlewares(app: FastAPI):
+    """
+    Initialize all middlewares
+    NOTE: All middlewares will run in order from top to bottom
 
-class AppBaseException(Exception):
-    def __init__(self, status_code: int, error_code: str, detail: str):
-        self.status_code = status_code
-        self.error_code = error_code
-        self.detail = detail
+    Args:
+        app (FastAPI): FastAPI app instance
+    """
 
-
-class HTTPExceptionResponseModel(BaseModel):
-    code: str
-    detail: str
-
+    @app.middleware("http")
+    async def request_logging(request: Request, call_next):
+        logger.info(f"{request.method} {request.url}")
+        response = await call_next(request)
+        return response
+    
 
 def init_exception_middlewares(app: FastAPI):
     """
