@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from app.core import logger
+from app.core.config import get_settings
 from app.exceptions.base_exception import AppBaseException
 
 def init_middlewares(app: FastAPI):
@@ -18,6 +20,25 @@ def init_middlewares(app: FastAPI):
         logger.info(f"{request.method} {request.url}")
         response = await call_next(request)
         return response
+    
+    if get_settings().app_env == "dev":
+        # Allow all origins in development
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+    else:
+        # Use specific allowed origins in production/staging
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=get_settings().allowed_origins,
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            allow_headers=["*"],
+        )
     
 
 def init_exception_middlewares(app: FastAPI):
